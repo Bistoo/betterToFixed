@@ -29,109 +29,100 @@
 //      optDigits is equal to 0, no need to change anything either (or move point by 0?)
 //      optDigits is different from 0, we then move the point by optDigits 
 //      optDigits is > digits in the passed number, then no need to move by optDigits
-
-
+//
 // PROTOTYPE IMPLEMENTATION
 //   
-	// /** EXAMPLE WITH EXPONENTS
-	//  * Implementation of toFixed() that treats floats more like decimals
-	//  *
-	//  * Fixes binary rounding issues (eg. (0.615).toFixed(2) === "0.61") that present
-	//  * problems for accounting- and finance-related software.
-	//  */
-  //  var toFixed = lib.toFixed = function(value, precision) {
-	// 	precision = checkPrecision(precision, lib.settings.number.precision);
+// /** EXAMPLE WITH EXPONENTS
+//  * Implementation of toFixed() that treats floats more like decimals
+//  *
+//  * Fixes binary rounding issues (eg. (0.615).toFixed(2) === "0.61") that present
+//  * problems for accounting- and finance-related software.
+//  */
+//  var toFixed = lib.toFixed = function(value, precision) {
+// 	precision = checkPrecision(precision, lib.settings.number.precision);
+//
+// 	var exponentialForm = Number(lib.unformat(value) + 'e' + precision);
+// 	var rounded = Math.round(exponentialForm);
+// 	var finalResult = Number(rounded + 'e-' + precision).toFixed(precision);
+// 	return finalResult;
+// };
+//
+// /** NOW WITH TEXT MANIPULATION
+//  betterToFixed(number, optionalPrecision)
+//    var numberToRound = number; 
+//    var optionalPrecision = optionalPrecision || 0;   
+//
+//    // DETERMINE NUMBER OF DIGITS IN NUMBER AND POSITION OF POINT= numberOfDigits and pointIndex
+//    var numberOfDigits = 0;    
+//    var pointIndex = null;
+//    var splittedNumberArray = number.toString().split(".");
+//    
+//    if (splittedNumberArray[1]) {
+//      numberOfDigits = splittedNumberArray[1].length;
+//      pointIndex = splittedNumberArray.length - NumberOfDigits;
+//    } 
+//
+//    // DETERMINE NUMBER OF DIGITS TO MOVE IF ANY = movingDigits
+//    // value by default, 0, that only need to be changed if digits > optionalPrecision
+//    var movingDigits = 0;
+//    
+//    if (optionalPrecision) {
+//      if (optionalPrecision > 100 || optionalPrecision < 0){
+//        throw RangeError;
+//      }
+//      
+//      // in that case, we need to "cut" the number and round decimals, so we need to move the point
+//      // if not, we keep movingDigits = 0
+//      if (digits > optionalPrecision) {
+//        movingDigits = optionalPrecision;
+//      }
+//    }
+//      
+//    // MOVE AND ROUND
+//    if (movingDigits !==0) {
+//      // MOVE the point by movingDigits;
+//      var movedPointArray = numberToRound.toString().split("").splice(pointIndex,1).splice(pointIndex+movingDigits, 0, ".")       // extract the point
+//      // ROUND
+//      var roundedMovedPointNumber = Math.round(movedPointArray.join(""));
+//      // MOVE back the point by movingDigits
+//      var roundedString = roundedMovedPointNumber.toString().split("").splice(pointIndex, 0, ".").join("");
+//      numberToRound = Number(roundedString)
+//    }
+//
+//    finalResult = numberToRound.toFixed(optionalPrecision);
+//    return finalResult;
+//    
 
-	// 	var exponentialForm = Number(lib.unformat(value) + 'e' + precision);
-	// 	var rounded = Math.round(exponentialForm);
-	// 	var finalResult = Number(rounded + 'e-' + precision).toFixed(precision);
-	// 	return finalResult;
-	// };
+function betterToFixed(numberToRound, optionalPrecision) {
 
-  // /** NOW WITH TEXT MANIPULATION
-  //  betterToFixed(number, optionalDigits)
-  //    var numberToRound = number; 
-  //    var optionalDigits = optionalDigits || 0;   
-  //
-  //    // DETERMINE NUMBER OF DIGITS IN NUMBER AND POSITION OF POINT= numberOfDigits and pointIndex
-  //    var numberOfDigits = 0;    
-  //    var pointIndex = null;
-  //    var splittedNumberArray = numberToRound.toString().split(".");
-  //    
-  //    if (splittedNumberArray[1]) {
-  //      numberOfDigits = splittedNumberArray[1].length;
-  //      pointIndex = splittedNumberArray.length - NumberOfDigits;
-  //    } 
-  //
-  //    // DETERMINE NUMBER OF DIGITS TO MOVE IF ANY = movingDigits
-  //    // value by default, 0, that only need to be changed if digits > optionalDigits
-  //    var movingDigits = 0;
-  //    
-  //    if (optionalDigits) {
-  //      if (optionalDigits > 100 || optionalDigits < 0){
-  //        throw RangeError;
-  //      }
-  //      
-  //      // in that case, we need to "cut" the number and round decimals, so we need to move the point
-  //      // if not, we keep movingDigits = 0
-  //      if (digits > optionalDigits) {
-  //        movingDigits = optionalDigits;
-  //      }
-  //    }
-  //      
-  //    // MOVE AND ROUND
-  //    if (movingDigits !==0) {
-  //      // MOVE the point by movingDigits;
-  //      var movedPointArray = numberToRound.toString().split("").splice(pointIndex,1).splice(pointIndex+movingDigits, 0, ".")       // extract the point
-  //      // ROUND
-  //      var roundedMovedPointNumber = Math.round(movedPointArray.join(""));
-  //      // MOVE back the point by movingDigits
-  //      var roundedString = roundedMovedPointNumber.toString().split("").splice(pointIndex, 0, ".").join("");
-  //      numberToRound = Number(roundedString)
-  //    }
-  //
-  //    finalResult = numberToRound.toFixed(optionalDigits);
-  //    return finalResult;
-  //    
-
-
-function betterToFixed(number, optionalDigits) {
-
-  var numberToRound = number; 
-  var digits = optionalDigits || 0;   
+  var precision = optionalPrecision || 0;   
   var numberOfDigits = 0;    
   var pointIndex = null;
-  var movingDigits = 0;
+     
+  if (precision > 100 || precision < 0){
+    throw new RangeError("betterToFixed() precision argument must be between 0 and 100");
+  }
 
-  // DETERMINE NUMBER OF DIGITS IN NUMBER AND POSITION OF POINT= numberOfDigits and pointIndex
-  var splittedNumberArray = number.toString().split(".");
+  // DETERMINE NUMBER OF DIGITS IN NUMBER AND POSITION OF POINT
+  var splittedNumberArray = numberToRound.toString().split(".");
      
   if (splittedNumberArray[1]) {
     numberOfDigits = splittedNumberArray[1].length;
     pointIndex = splittedNumberArray[0].length;
   } 
-     
-  if (digits > 100 || digits < 0){
-    throw new RangeError("betterToFixed() digits argument must be between 0 and 100");
-  }
-       
-  // DETERMINE NUMBER OF DIGITS TO MOVE IF ANY = movingDigits
-  if (numberOfDigits > digits) {
-    movingDigits = digits;
-  }
-       
-  // MOVE THE POINT AND ROUND IF WE NEED TO
-  if (movingDigits !==0) {
-    var movedPointNumber = numberToRound.toString().split("");
-    movedPointNumber.splice(pointIndex,1);
-    movedPointNumber.splice((pointIndex + movingDigits), 0, ".");
-    var roundedMovedPointNumber = Math.round(movedPointNumber.join(""));
-    var roundedString = roundedMovedPointNumber.toString().split("")
-    roundedString.splice(pointIndex, 0, ".");
-    numberToRound = Number(roundedString.join(""));
+ 
+  // MOVE THE POINT AND ROUND IT 
+  if (numberOfDigits > precision) {
+    var splittedNumber = numberToRound.toString().split("");
+    splittedNumber.splice(pointIndex,1);
+    splittedNumber.splice((pointIndex + precision), 0, ".");
+    var roundedMovedPointNumber = Math.round(splittedNumber.join(""));
+    var splittedRoundedNumber = roundedMovedPointNumber.toString().split("")
+    splittedRoundedNumber.splice(pointIndex, 0, ".");
+    numberToRound = Number(splittedRoundedNumber.join(""));
   }
   
-  finalResult = numberToRound.toFixed(digits);
+  finalResult = numberToRound.toFixed(precision);
   return finalResult;
 }
 
@@ -141,17 +132,17 @@ tests({
     eq(typeof(betterToFixed(123.456)), "string");
   },
 
-  'If digits argument is not between 0 and 100, it should throw a RangeError': function() {
+  'If precision argument is not between 0 and 100, it should throw a RangeError': function() {
     var isRangeError = false;
       try {
-        betterToFixed(123.456, 150);
+        betterToFixed(123.456, -150);
       } catch(e) {
         isRangeError = (e instanceof RangeError);
       }
       eq(isRangeError, true);
   },
 
-  'It should not return any decimal if there is no optDigits': function() {
+  'It should not return any decimal if there is no optionalPrecision': function() {
     eq(betterToFixed(123.456), "123");
   },
 
