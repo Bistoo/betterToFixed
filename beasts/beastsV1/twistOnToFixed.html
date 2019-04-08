@@ -93,36 +93,20 @@
 //    return finalResult;
 //    
 
-function betterToFixed(numberToRound, optionalPrecision) {
+function betterToFixed(number, precision) {
 
-  var precision = optionalPrecision || 0;   
-  var numberOfDigits = 0;    
-  var pointIndex = null;
-     
-  if (precision > 100 || precision < 0){
-    throw new RangeError("betterToFixed() precision argument must be between 0 and 100");
-  }
+  var stringNumber = number.toString();
+  var pointIndex = stringNumber.indexOf("."); 
+  var numberOfDigits = stringNumber.length - stringNumber.replace(/(\.)\d*/, "$1").length;
 
-  // DETERMINE NUMBER OF DIGITS IN NUMBER AND POSITION OF POINT
-  var splittedNumberArray = numberToRound.toString().split(".");
-     
-  if (splittedNumberArray[1]) {
-    numberOfDigits = splittedNumberArray[1].length;
-    pointIndex = splittedNumberArray[0].length;
-  } 
- 
-  // MOVE THE POINT AND ROUND IT 
+  // MOVE THE POINT AND ROUND IT IF NEEDED
   if (numberOfDigits > precision) {
-    var splittedNumber = numberToRound.toString().split("");
-    splittedNumber.splice(pointIndex,1);
-    splittedNumber.splice((pointIndex + precision), 0, ".");
-    var roundedMovedPointNumber = Math.round(splittedNumber.join(""));
-    var splittedRoundedNumber = roundedMovedPointNumber.toString().split("")
-    splittedRoundedNumber.splice(pointIndex, 0, ".");
-    numberToRound = Number(splittedRoundedNumber.join(""));
+    var splitNumber = stringNumber.replace(".", "").split("");
+    splitNumber.splice((pointIndex + precision), 0, ".");
+    number = Math.round(splitNumber.join(""))/ Math.pow(10, precision);
   }
   
-  finalResult = numberToRound.toFixed(precision);
+  var finalResult = number.toFixed(precision);
   return finalResult;
 }
 
@@ -169,6 +153,10 @@ tests({
 
   'It should work with negative numbers': function() {
     eq(betterToFixed(-123.456, 2), "-123.46");
+  },
+
+  'It should work with numbers without decimals': function() {
+    eq(betterToFixed(123, 2), "123.00");
   },
 
   'It should work with exponents': function() {
