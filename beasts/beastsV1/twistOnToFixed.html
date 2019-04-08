@@ -99,7 +99,6 @@ function betterToFixed(number, precision) {
   var pointIndex = stringNumber.indexOf("."); 
   var numberOfDigits = stringNumber.length - stringNumber.replace(/(\.)\d*/, "$1").length;
 
-  // MOVE THE POINT AND ROUND IT IF NEEDED
   if (numberOfDigits > precision) {
     var splitNumber = stringNumber.replace(".", "").split("");
     splitNumber.splice((pointIndex + precision), 0, ".");
